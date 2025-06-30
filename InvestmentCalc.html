@@ -1,0 +1,261 @@
+<!-- Investment Calculator HTML Page-->
+<!-- Input: Start Amt, Nos of Years, ROI, Year wise investment  -->
+<!-- Output: Investment Growth Schedule  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Investment Growth with Charts</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fafbfc;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 10px 30px 10px;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1 1 0;
+      min-width: 320px;
+      max-width: 700px;
+      margin-right: 40px;
+      background: #fff;
+      padding: 24px 24px 0 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    #chartsContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-width: 400px;
+      max-width: 420px;
+      align-items: flex-end;
+    }
+
+    .chart-wrapper {
+      width: 400px;
+      height: 220px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-wrapper canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+
+    label {
+      display: inline-block;
+      width: 200px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 4px;
+      width: 200px;
+      margin-bottom: 10px;
+    }
+
+    #investmentInputs {
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 1000px) {
+      .container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .main-content {
+        margin-right: 0;
+        margin-bottom: 30px;
+        max-width: 100%;
+      }
+      #chartsContainer, .chart-wrapper {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+        align-items: center;
+      }
+      .chart-wrapper {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="main-content">
+      <h2>Compound Investment Calculator</h2>
+
+      <label for="startingAmount">Starting Amount:</label>
+      <input type="number" id="startingAmount" step="0.01"><br>
+
+      <label for="years">Number of Years:</label>
+      <input type="number" id="years" min="1"><br>
+
+      <label for="interestRate">Annual Interest Rate (%):</label>
+      <input type="number" id="interestRate" step="0.01"><br>
+
+      <button onclick="generateInputs()">Enter Yearly Investments</button>
+      <div id="investmentInputs"></div>
+
+      <button onclick="calculateCompound()">Calculate</button>
+
+      <h3>Results</h3>
+      <p><strong>Starting Amount:</strong> ₹<span id="startOut">0.00</span></p>
+      <p><strong>Total Contributions:</strong> ₹<span id="contribOut">0.00</span></p>
+      <p><strong>End Amount:</strong> ₹<span id="endOut">0.00</span></p>
+      <p><strong>Total Interest:</strong> ₹<span id="interestOut">0.00</span></p>
+
+      <h3>Accumulation Schedule</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Deposit</th>
+            <th>Interest</th>
+            <th>Ending Balance</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleTable"></tbody>
+      </table>
+    </div>
+    <div id="chartsContainer">
+      <div class="chart-wrapper">
+        <canvas id="growthChart"></canvas>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="resultPieChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <script>
+    let growthChart, pieChart;
+
+    function generateInputs() {
+      const years = parseInt(document.getElementById('years').value);
+      const container = document.getElementById('investmentInputs');
+      container.innerHTML = '';
+      for (let i = 1; i <= years; i++) {
+        container.innerHTML += `Year ${i} Investment: <input type="number" id="investment${i}" step="0.01"><br>`;
+      }
+    }
+
+    function calculateCompound() {
+      const start = parseFloat(document.getElementById('startingAmount').value) || 0;
+      const years = parseInt(document.getElementById('years').value);
+      const rate = parseFloat(document.getElementById('interestRate').value) / 100;
+
+      let balance = start;
+      let totalDeposits = 0;
+      const labels = [], data = [];
+      const tableBody = document.getElementById("scheduleTable");
+      tableBody.innerHTML = '';
+
+      for (let i = 1; i <= years; i++) {
+        const deposit = parseFloat(document.getElementById(`investment${i}`).value) || 0;
+        totalDeposits += deposit;
+        const interest = (balance + deposit) * rate;
+        balance += deposit + interest;
+
+        labels.push(`Year ${i}`);
+        data.push(balance.toFixed(2));
+
+        tableBody.innerHTML += `<tr>
+          <td>${i}</td>
+          <td>₹${deposit.toFixed(2)}</td>
+          <td>₹${interest.toFixed(2)}</td>
+          <td>₹${balance.toFixed(2)}</td>
+        </tr>`;
+      }
+
+      const totalInterest = balance - start - totalDeposits;
+
+      document.getElementById('startOut').innerText = start.toFixed(2);
+      document.getElementById('contribOut').innerText = totalDeposits.toFixed(2);
+      document.getElementById('endOut').innerText = balance.toFixed(2);
+      document.getElementById('interestOut').innerText = totalInterest.toFixed(2);
+
+      // Line Chart
+      if (growthChart) growthChart.destroy();
+      const ctx1 = document.getElementById('growthChart').getContext('2d');
+      growthChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Ending Balance (₹)',
+            data: data,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40,167,69,0.1)',
+            fill: true,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Pie Chart
+      if (pieChart) pieChart.destroy();
+      const ctx2 = document.getElementById('resultPieChart').getContext('2d');
+      pieChart = new Chart(ctx2, {
+        type: 'pie',
+        data: {
+          labels: ['Starting Amount', 'Deposits', 'Interest Earned'],
+          datasets: [{
+            data: [start, totalDeposits, totalInterest],
+            backgroundColor: ['#4e79a7', '#f28e2c', '#76b7b2']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
