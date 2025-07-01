@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamic Pie Chart from Text Boxes</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+
+      function drawChart() {
+        // Get values from text boxes
+        var label1 = document.getElementById('label1').value || "Value 1";
+        var value1 = parseFloat(document.getElementById('value1').value) || 0;
+        var label2 = document.getElementById('label2').value || "Value 2";
+        var value2 = parseFloat(document.getElementById('value2').value) || 0;
+        var label3 = document.getElementById('label3').value || "Value 3";
+        var value3 = parseFloat(document.getElementById('value3').value) || 0;
+
+        // Prepare data for the chart
+        var data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          [label1, value1],
+          [label2, value2],
+          [label3, value3]
+        ]);
+
+        var options = {
+          title: 'Pie Chart from Text Boxes',
+          width: 500,
+          height: 400
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+      }
+
+      // Draw chart on page load with default values
+      google.charts.setOnLoadCallback(drawChart);
+    </script>
+  </head>
+  <body>
+    <h2>Enter Values for Pie Chart</h2>
+    <label>Label 1: <input type="text" id="label1" value="A"></label>
+    <label>Value 1: <input type="number" id="value1" value="10"></label><br>
+    <label>Label 2: <input type="text" id="label2" value="B"></label>
+    <label>Value 2: <input type="number" id="value2" value="20"></label><br>
+    <label>Label 3: <input type="text" id="label3" value="C"></label>
+    <label>Value 3: <input type="number" id="value3" value="30"></label><br>
+    <button onclick="drawChart()">Update Chart</button>
+    <div id="piechart" style="width: 500px; height: 400px;"></div>
+  </body>
+</html>
