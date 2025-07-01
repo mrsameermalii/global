@@ -5,7 +5,10 @@
   <meta charset="utf-8">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <!-- Google Charts loader for Pie Chart -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
+    /* ... (your CSS unchanged) ... */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -138,10 +141,11 @@
       justify-content: center;
       margin-bottom: 0;
     }
-    .chart-wrapper canvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
+    /* For Google Chart container */
+    #resultPieChart {
+      width: 100%;
+      min-width: 280px;
+      height: 260px;
     }
     @media (max-width: 1200px) {
       .container {
@@ -165,6 +169,11 @@
       }
     }
   </style>
+  <script type="text/javascript">
+    // Load Google Charts for Pie Chart
+    google.charts.load('current', {'packages':['corechart']});
+    // We'll call drawPieChart() after calculation
+  </script>
 </head>
 <body>
   <div class="container">
@@ -234,12 +243,13 @@
         <canvas id="growthChart"></canvas>
       </div>
       <div class="chart-wrapper">
-        <canvas id="resultPieChart"></canvas>
+        <!-- Replace canvas with div for Google Pie Chart -->
+        <div id="resultPieChart"></div>
       </div>
     </div>
   </div>
   <script>
-    let growthChart, pieChart;
+    let growthChart;
     let manualYears = false;
     let manualYearCount = 1;
     let investmentType = 'yearly'; // 'yearly' or 'monthly'
@@ -373,7 +383,7 @@
       document.getElementById('endOut').innerText = balance.toFixed(2);
       document.getElementById('interestOut').innerText = totalInterest.toFixed(2);
 
-      // Line Chart
+      // Line Chart (Chart.js, unchanged)
       if (growthChart) growthChart.destroy();
       const ctx1 = document.getElementById('growthChart').getContext('2d');
       growthChart = new Chart(ctx1, {
@@ -399,52 +409,40 @@
         }
       });
 
-      // Pie Chart with Data Labels and Legend at Bottom Right and extra padding
-      if (pieChart) pieChart.destroy();
-      const ctx2 = document.getElementById('resultPieChart').getContext('2d');
-      pieChart = new Chart(ctx2, {
-        type: 'pie',
-        data: {
-          labels: ['Starting Amount', 'Deposits', 'Interest Earned'],
-          datasets: [{
-            data: [start, totalDeposits, totalInterest],
-            backgroundColor: ['#4e79a7', '#f28e2c', '#76b7b2']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          layout: {
-            padding: {
-              right: 50,
-              bottom: 30
-            }
-          },
-          plugins: {
-            legend: {
-              position: 'bottom',
-              align: 'end',
-              padding: 30 // Space between chart and legend
-            },
-            datalabels: {
-              color: '#333',
-              formatter: function(value) {
-                return '₹' + value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-              },
-              anchor: 'end',
-              align: 'end',
-              offset: 18,
-              borderColor: '#333',
-              borderWidth: 1,
-              borderRadius: 4,
-              backgroundColor: '#fff',
-              font: { weight: 'bold', size: 13 }
-            }
-          }
-        },
-        plugins: [ChartDataLabels]
-      });
+      // Pie Chart (Google Charts)
+      drawPieChart(start, totalDeposits, totalInterest);
+    }
+
+    // Draw Pie Chart using Google Charts
+    function drawPieChart(start, totalDeposits, totalInterest) {
+      // Wait for Google Charts to be loaded
+      if (!google.visualization || !google.visualization.PieChart) {
+        google.charts.setOnLoadCallback(function() {
+          drawPieChart(start, totalDeposits, totalInterest);
+        });
+        return;
+      }
+      var data = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Starting Amount', start],
+        ['Deposits', totalDeposits],
+        ['Interest Earned', totalInterest]
+      ]);
+      var options = {
+        title: 'Investment Breakdown',
+        pieHole: 0,
+        width: '100%',
+        height: 260,
+        chartArea: {left:10, top:40, width:'90%', height:'75%'},
+        legend: { position: 'bottom', alignment: 'center', textStyle: {fontSize: 14} },
+        slices: {
+          0: { color: '#4e79a7' },
+          1: { color: '#f28e2c' },
+          2: { color: '#76b7b2' }
+        }
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('resultPieChart'));
+      chart.draw(data, options);
     }
   </script>
 </body>
