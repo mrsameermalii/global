@@ -15,60 +15,44 @@
     .container {
       display: flex;
       flex-direction: row;
+      justify-content: space-between;
       align-items: flex-start;
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 30px 10px 30px 10px;
+      padding: 30px 10px;
       box-sizing: border-box;
       min-height: 100vh;
+      gap: 24px;
     }
-    .main-content {
-      flex: 1 1 0;
-      min-width: 320px;
-      max-width: 700px;
-      margin-right: 40px;
-      background: #fff;
-      padding: 24px 24px 0 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    }
-    #chartsContainer {
+    .main-area {
+      flex: 2 1 0;
       display: flex;
       flex-direction: column;
       gap: 24px;
-      min-width: 400px;
-      max-width: 420px;
-      align-items: flex-end;
     }
-    .chart-wrapper {
-      width: 400px;
-      height: 260px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    .top-row {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: row;
+      gap: 24px;
+      align-items: flex-start;
     }
-    .chart-wrapper canvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      padding: 24px 18px 24px 18px;
+      box-sizing: border-box;
+      min-width: 280px;
+      max-width: 420px;
+      flex: 1 1 0;
+      margin: 0 0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 30px;
+    .section h2, .section h3 {
+      margin-top: 0;
     }
-    table, th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: center;
-    }
-    th {
-      background: #888;
-      color: #fff;
-      font-weight: bold;
+    .section h3.underline {
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
     label {
       display: inline-block;
@@ -80,8 +64,17 @@
       width: 200px;
       margin-bottom: 10px;
     }
-    #investmentInputs {
-      margin-bottom: 15px;
+    .radio-group {
+      margin-bottom: 10px;
+      margin-left: 200px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .radio-group label {
+      width: auto;
+      margin-bottom: 0;
+      font-weight: normal;
     }
     .manual-controls {
       margin-bottom: 10px;
@@ -99,94 +92,144 @@
     .add-remove-btn:hover {
       background: #0d47a1;
     }
-    .radio-group {
-      margin-bottom: 10px;
-      margin-left: 200px;
+    #investmentInputs {
+      margin-bottom: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background: #888;
+      color: #fff;
+      font-weight: bold;
+    }
+    .charts-section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      padding: 24px 18px 24px 18px;
+      box-sizing: border-box;
+      min-width: 320px;
+      max-width: 420px;
+      flex: 1 1 0;
+      margin: 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 24px;
+      height: fit-content;
+    }
+    .chart-wrapper {
+      width: 100%;
+      min-width: 280px;
+      height: 260px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
-      gap: 20px;
-    }
-    .radio-group label {
-      width: auto;
+      justify-content: center;
       margin-bottom: 0;
-      font-weight: normal;
     }
-    @media (max-width: 1000px) {
+    .chart-wrapper canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+    @media (max-width: 1200px) {
       .container {
         flex-direction: column;
         align-items: stretch;
+        gap: 0;
       }
-      .main-content {
-        margin-right: 0;
-        margin-bottom: 30px;
-        max-width: 100%;
-      }
-      #chartsContainer, .chart-wrapper {
-        min-width: 0;
-        max-width: 100%;
+      .main-area {
         width: 100%;
-        align-items: center;
+      }
+      .top-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      .section, .charts-section {
+        max-width: 100%;
+        margin-bottom: 20px;
       }
       .chart-wrapper {
-        width: 100%;
-        max-width: 400px;
-      }
-      .radio-group {
-        margin-left: 0;
+        margin-bottom: 18px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="main-content">
-      <h2>Compound Investment Calculator</h2>
-      <label for="startingAmount">Starting Amount:</label>
-      <input type="number" id="startingAmount" step="0.01"><br>
+    <!-- Main Area: Inputs, Results, Schedule -->
+    <div class="main-area">
+      <div class="top-row">
+        <!-- Inputs Section -->
+        <div class="section" id="inputSection">
+          <h2>Inputs</h2>
+          <label for="startingAmount">Starting Amount:</label>
+          <input type="number" id="startingAmount" step="0.01"><br>
 
-      <label for="years">Number of Years:</label>
-      <input type="number" id="years" min="1" style="width:80px;"><br>
+          <label for="years">Number of Years:</label>
+          <input type="number" id="years" min="1" style="width:80px;"><br>
 
-      <label for="interestRate">Annual Interest Rate (%):</label>
-      <input type="number" id="interestRate" step="0.01"><br>
+          <label for="interestRate">Annual Interest Rate (%):</label>
+          <input type="number" id="interestRate" step="0.01"><br>
 
-      <input type="checkbox" id="manualYears" style="width:auto; margin-left:0;">
-      <label for="manualYears" style="width:auto; display:inline;">Additional Investments</label>
-      <br>
+          <input type="checkbox" id="manualYears" style="width:auto; margin-left:0;">
+          <label for="manualYears" style="width:auto; display:inline;">Additional Investments</label>
+          <br>
 
-      <div class="radio-group" id="investmentTypeGroup" style="display:none;">
-        <label><input type="radio" name="investmentType" value="yearly" checked> Yearly</label>
-        <label><input type="radio" name="investmentType" value="monthly"> Monthly</label>
+          <div class="radio-group" id="investmentTypeGroup" style="display:none;">
+            <label><input type="radio" name="investmentType" value="yearly" checked> Yearly</label>
+            <label><input type="radio" name="investmentType" value="monthly"> Monthly</label>
+          </div>
+
+          <div class="manual-controls" id="manualControls" style="display:none;">
+            <button class="add-remove-btn" onclick="addYear()">+ Add Year</button>
+            <button class="add-remove-btn" onclick="removeYear()">- Remove Year</button>
+          </div>
+          <div id="investmentInputs" style="display:none;"></div>
+
+          <button onclick="calculateCompound()">Calculate</button>
+        </div>
+        <!-- Results Section -->
+        <div class="section" id="resultsSection">
+          <h2>Results</h2>
+          <p><strong>Starting Amount:</strong> ₹<span id="startOut">0.00</span></p>
+          <p><strong>Total Contributions:</strong> ₹<span id="contribOut">0.00</span></p>
+          <p><strong>End Amount:</strong> ₹<span id="endOut">0.00</span></p>
+          <p><strong>Total Interest:</strong> ₹<span id="interestOut">0.00</span></p>
+        </div>
       </div>
-
-      <div class="manual-controls" id="manualControls" style="display:none;">
-        <button class="add-remove-btn" onclick="addYear()">+ Add Year</button>
-        <button class="add-remove-btn" onclick="removeYear()">- Remove Year</button>
+      <!-- Accumulation Schedule Section -->
+      <div class="section" style="max-width:100%;">
+        <h3 class="underline">Accumulation Schedule</h3>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Deposit</th>
+                <th>Interest</th>
+                <th>Ending Balance</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTable"></tbody>
+          </table>
+        </div>
       </div>
-      <div id="investmentInputs" style="display:none;"></div>
-
-      <button onclick="calculateCompound()">Calculate</button>
-
-      <h3>Results</h3>
-      <p><strong>Starting Amount:</strong> ₹<span id="startOut">0.00</span></p>
-      <p><strong>Total Contributions:</strong> ₹<span id="contribOut">0.00</span></p>
-      <p><strong>End Amount:</strong> ₹<span id="endOut">0.00</span></p>
-      <p><strong>Total Interest:</strong> ₹<span id="interestOut">0.00</span></p>
-
-      <h3><u>Accumulation Schedule :</u></h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Year</th>
-            <th>Deposit</th>
-            <th>Interest</th>
-            <th>Ending Balance</th>
-          </tr>
-        </thead>
-        <tbody id="scheduleTable"></tbody>
-      </table>
     </div>
-    <div id="chartsContainer">
+    <!-- Charts Section -->
+    <div class="charts-section" id="chartsSection">
+      <h2>Charts</h2>
       <div class="chart-wrapper">
         <canvas id="growthChart"></canvas>
       </div>
@@ -232,9 +275,7 @@
     });
 
     yearsInput.addEventListener('input', function() {
-      if (!manualYears) {
-        // No investment inputs shown unless manualYears is checked
-      }
+      // No investment inputs shown unless manualYears is checked
     });
 
     function generateManualInputs(setDefaults) {
@@ -358,7 +399,7 @@
         }
       });
 
-      // Pie Chart with Data Labels and Legend at Bottom Right
+      // Pie Chart with Data Labels and Legend at Bottom Right and extra padding
       if (pieChart) pieChart.destroy();
       const ctx2 = document.getElementById('resultPieChart').getContext('2d');
       pieChart = new Chart(ctx2, {
@@ -374,10 +415,17 @@
           responsive: true,
           maintainAspectRatio: false,
           animation: false,
+          layout: {
+            padding: {
+              right: 50,
+              bottom: 30
+            }
+          },
           plugins: {
             legend: {
               position: 'bottom',
-              align: 'end' // right side of bottom
+              align: 'end',
+              padding: 30 // Space between chart and legend
             },
             datalabels: {
               color: '#333',
@@ -386,7 +434,7 @@
               },
               anchor: 'end',
               align: 'end',
-              offset: 10,
+              offset: 18,
               borderColor: '#333',
               borderWidth: 1,
               borderRadius: 4,
