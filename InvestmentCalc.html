@@ -1,12 +1,10 @@
-<!-- Investment Calculator HTML Page-->
-<!-- Input: Start Amt, Nos of Years, ROI, Year wise investment  -->
-<!-- Output: Investment Growth Schedule  -->
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Investment Growth with Charts</title>
+  <meta charset="utf-8">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,7 +12,6 @@
       padding: 0;
       background: #fafbfc;
     }
-
     .container {
       display: flex;
       flex-direction: row;
@@ -25,7 +22,6 @@
       box-sizing: border-box;
       min-height: 100vh;
     }
-
     .main-content {
       flex: 1 1 0;
       min-width: 320px;
@@ -36,7 +32,6 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
-
     #chartsContainer {
       display: flex;
       flex-direction: column;
@@ -45,10 +40,9 @@
       max-width: 420px;
       align-items: flex-end;
     }
-
     .chart-wrapper {
       width: 400px;
-      height: 220px;
+      height: 260px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -56,41 +50,67 @@
       align-items: center;
       justify-content: center;
     }
-
     .chart-wrapper canvas {
       width: 100% !important;
       height: 100% !important;
       display: block;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 30px;
     }
-
     table, th, td {
       border: 1px solid #ccc;
       padding: 6px;
       text-align: center;
     }
-
+    th {
+      background: #888;
+      color: #fff;
+      font-weight: bold;
+    }
     label {
       display: inline-block;
       width: 200px;
       margin-bottom: 10px;
     }
-
-    input {
+    input[type="number"] {
       padding: 4px;
       width: 200px;
       margin-bottom: 10px;
     }
-
     #investmentInputs {
       margin-bottom: 15px;
     }
-
+    .manual-controls {
+      margin-bottom: 10px;
+    }
+    .add-remove-btn {
+      background: #1565c0;
+      color: #fff;
+      border: none;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .add-remove-btn:hover {
+      background: #0d47a1;
+    }
+    .radio-group {
+      margin-bottom: 10px;
+      margin-left: 200px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .radio-group label {
+      width: auto;
+      margin-bottom: 0;
+      font-weight: normal;
+    }
     @media (max-width: 1000px) {
       .container {
         flex-direction: column;
@@ -111,6 +131,9 @@
         width: 100%;
         max-width: 400px;
       }
+      .radio-group {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
@@ -118,18 +141,29 @@
   <div class="container">
     <div class="main-content">
       <h2>Compound Investment Calculator</h2>
-
       <label for="startingAmount">Starting Amount:</label>
       <input type="number" id="startingAmount" step="0.01"><br>
 
       <label for="years">Number of Years:</label>
-      <input type="number" id="years" min="1"><br>
+      <input type="number" id="years" min="1" style="width:80px;"><br>
 
       <label for="interestRate">Annual Interest Rate (%):</label>
       <input type="number" id="interestRate" step="0.01"><br>
 
-      <button onclick="generateInputs()">Enter Yearly Investments</button>
-      <div id="investmentInputs"></div>
+      <input type="checkbox" id="manualYears" style="width:auto; margin-left:0;">
+      <label for="manualYears" style="width:auto; display:inline;">Additional Investments</label>
+      <br>
+
+      <div class="radio-group" id="investmentTypeGroup" style="display:none;">
+        <label><input type="radio" name="investmentType" value="yearly" checked> Yearly</label>
+        <label><input type="radio" name="investmentType" value="monthly"> Monthly</label>
+      </div>
+
+      <div class="manual-controls" id="manualControls" style="display:none;">
+        <button class="add-remove-btn" onclick="addYear()">+ Add Year</button>
+        <button class="add-remove-btn" onclick="removeYear()">- Remove Year</button>
+      </div>
+      <div id="investmentInputs" style="display:none;"></div>
 
       <button onclick="calculateCompound()">Calculate</button>
 
@@ -139,7 +173,7 @@
       <p><strong>End Amount:</strong> ₹<span id="endOut">0.00</span></p>
       <p><strong>Total Interest:</strong> ₹<span id="interestOut">0.00</span></p>
 
-      <h3>Accumulation Schedule</h3>
+      <h3><u>Accumulation Schedule :</u></h3>
       <table>
         <thead>
           <tr>
@@ -163,19 +197,93 @@
   </div>
   <script>
     let growthChart, pieChart;
+    let manualYears = false;
+    let manualYearCount = 1;
+    let investmentType = 'yearly'; // 'yearly' or 'monthly'
 
-    function generateInputs() {
-      const years = parseInt(document.getElementById('years').value);
-      const container = document.getElementById('investmentInputs');
-      container.innerHTML = '';
-      for (let i = 1; i <= years; i++) {
-        container.innerHTML += `Year ${i} Investment: <input type="number" id="investment${i}" step="0.01"><br>`;
+    const yearsInput = document.getElementById('years');
+    const startingAmountInput = document.getElementById('startingAmount');
+    const manualYearsCheckbox = document.getElementById('manualYears');
+    const investmentInputsDiv = document.getElementById('investmentInputs');
+    const manualControlsDiv = document.getElementById('manualControls');
+    const investmentTypeGroup = document.getElementById('investmentTypeGroup');
+
+    manualYearsCheckbox.addEventListener('change', function() {
+      manualYears = this.checked;
+      yearsInput.disabled = manualYears;
+      manualControlsDiv.style.display = manualYears ? 'block' : 'none';
+      investmentInputsDiv.style.display = manualYears ? 'block' : 'none';
+      investmentTypeGroup.style.display = manualYears ? 'flex' : 'none';
+      if (manualYears) {
+        manualYearCount = parseInt(yearsInput.value) || 1;
+        if (manualYearCount < 1) manualYearCount = 1;
+        generateManualInputs(true); // true = set default values
+      } else {
+        investmentInputsDiv.innerHTML = '';
+      }
+    });
+
+    // Handle radio button selection
+    document.querySelectorAll('input[name="investmentType"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        investmentType = this.value;
+        if (manualYears) generateManualInputs(false);
+      });
+    });
+
+    yearsInput.addEventListener('input', function() {
+      if (!manualYears) {
+        // No investment inputs shown unless manualYears is checked
+      }
+    });
+
+    function generateManualInputs(setDefaults) {
+      yearsInput.value = manualYearCount; // Keep the years input in sync
+      investmentInputsDiv.innerHTML = '';
+      const defaultValue = parseFloat(startingAmountInput.value) || 0;
+      for (let i = 1; i <= manualYearCount; i++) {
+        let valueAttr = '';
+        if (setDefaults) valueAttr = `value="${defaultValue}"`;
+        if (investmentType === 'monthly') {
+          investmentInputsDiv.innerHTML += `<div style="margin-bottom:6px;">Year ${i} Monthly Investment: <input type="number" id="investment${i}" step="0.01" ${valueAttr}></div>`;
+        } else {
+          investmentInputsDiv.innerHTML += `<div style="margin-bottom:6px;">Year ${i} Investment: <input type="number" id="investment${i}" step="0.01" ${valueAttr}></div>`;
+        }
       }
     }
 
+    function addYear() {
+      manualYearCount++;
+      generateManualInputs(true);
+    }
+
+    function removeYear() {
+      if (manualYearCount > 1) {
+        manualYearCount--;
+        generateManualInputs(true);
+      }
+    }
+
+    // If starting amount changes while manual investment is enabled, update new fields to default to the new value
+    startingAmountInput.addEventListener('change', function() {
+      if (manualYears) generateManualInputs(true);
+    });
+
     function calculateCompound() {
       const start = parseFloat(document.getElementById('startingAmount').value) || 0;
-      const years = parseInt(document.getElementById('years').value);
+      let years;
+      let deposits = [];
+      if (manualYears) {
+        years = manualYearCount;
+        for (let i = 1; i <= years; i++) {
+          deposits[i] = parseFloat(document.getElementById(`investment${i}`).value) || 0;
+        }
+      } else {
+        years = parseInt(yearsInput.value) || 0;
+        for (let i = 1; i <= years; i++) {
+          deposits[i] = 0; // No yearly investments unless manual
+        }
+      }
       const rate = parseFloat(document.getElementById('interestRate').value) / 100;
 
       let balance = start;
@@ -185,10 +293,26 @@
       tableBody.innerHTML = '';
 
       for (let i = 1; i <= years; i++) {
-        const deposit = parseFloat(document.getElementById(`investment${i}`).value) || 0;
+        let deposit = deposits[i] || 0;
+        let interest = 0;
+        if (manualYears && investmentType === 'monthly') {
+          // For monthly, compound monthly
+          let yearDeposit = 0;
+          let monthlyRate = Math.pow(1 + rate, 1/12) - 1;
+          for (let m = 1; m <= 12; m++) {
+            balance += deposit;
+            yearDeposit += deposit;
+            let monthInterest = balance * monthlyRate;
+            balance += monthInterest;
+            interest += monthInterest;
+          }
+          deposit = yearDeposit;
+        } else {
+          // Yearly
+          interest = (balance + deposit) * rate;
+          balance += deposit + interest;
+        }
         totalDeposits += deposit;
-        const interest = (balance + deposit) * rate;
-        balance += deposit + interest;
 
         labels.push(`Year ${i}`);
         data.push(balance.toFixed(2));
@@ -234,7 +358,7 @@
         }
       });
 
-      // Pie Chart
+      // Pie Chart with Data Labels and Legend at Bottom Right
       if (pieChart) pieChart.destroy();
       const ctx2 = document.getElementById('resultPieChart').getContext('2d');
       pieChart = new Chart(ctx2, {
@@ -251,9 +375,27 @@
           maintainAspectRatio: false,
           animation: false,
           plugins: {
-            legend: { position: 'bottom' }
+            legend: {
+              position: 'bottom',
+              align: 'end' // right side of bottom
+            },
+            datalabels: {
+              color: '#333',
+              formatter: function(value) {
+                return '₹' + value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+              },
+              anchor: 'end',
+              align: 'end',
+              offset: 10,
+              borderColor: '#333',
+              borderWidth: 1,
+              borderRadius: 4,
+              backgroundColor: '#fff',
+              font: { weight: 'bold', size: 13 }
+            }
           }
-        }
+        },
+        plugins: [ChartDataLabels]
       });
     }
   </script>
