@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy Multiple Links</title>
+    <style>
+        .copy-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        .link-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+        }
+        
+        .copy-btn {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-btn.copied {
+            background-color: #28a745;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+    <script>
+        // Copy custom link using button ID
+        function copyCustomLink(buttonId) {
+            // Get the corresponding input field based on button ID
+            const linkNumber = buttonId.replace('btn', '');
+            const linkInput = document.getElementById('link' + linkNumber);
+            copyToClipboard(linkInput.value, buttonId);
+        }
+
+        // Copy to clipboard function
+        async function copyToClipboard(text, buttonId) {
+            try {
+                // Modern approach using Clipboard API
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    textArea.remove();
+                }
+                
+                showNotification();
+                showButtonFeedback(buttonId);
+                
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy link. Please copy manually.');
+            }
+        }
+
+        // Show notification
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        // Show button feedback for specific button
+        function showButtonFeedback(buttonId) {
+            const button = document.getElementById(buttonId);
+            const originalText = button.textContent;
+            button.textContent = '✓ Copied!';
+            button.classList.add('copied');
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('copied');
+            }, 2000);
+        }
+    </script>
+</head>
+<body>
+    <!-- Copy link 1 -->
+    <div class="copy-container">
+        <input type="text" class="link-input" value="https://example.com/custom-link" id="link1" readonly>
+        <button class="copy-btn" id="btn1" onclick="copyCustomLink(this.id)">Copy Link</button>
+    </div>
+
+    <!-- Copy link 2 -->
+    <div class="copy-container">
+        <input type="text" class="link-input" value="https://docs.google.com/spreadsheets/d/1B73-LDjnpZBNXz6AjmcXXE6qCutK-CwoYOk8YLOYbvQ/edit?gid=883594533" id="link2" readonly>
+        <button class="copy-btn" id="btn2" onclick="copyCustomLink(this.id)">Copy Link (NSE)</button>
+    </div>
+
+    <!-- Copy link 3 -->
+    <div class="copy-container">
+        <input type="text" class="link-input" value="https://docs.google.com/spreadsheets/d/1B73-LDjnpZBNXz6AjmcXXE6qCutK-CwoYOk8YLOYbvQ/edit?gid=2043073327" id="link3" readonly>
+        <button class="copy-btn" id="btn3" onclick="copyCustomLink(this.id)">Copy Link (BSE)</button>
+    </div>
+
+    <!-- Copy link 4 -->
+    <div class="copy-container">
+        <input type="text" class="link-input" value="https://docs.google.com/spreadsheets/d/1B73-LDjnpZBNXz6AjmcXXE6qCutK-CwoYOk8YLOYbvQ/edit?gid=2075679018" id="link4" readonly>
+        <button class="copy-btn" id="btn4" onclick="copyCustomLink(this.id)">Copy Link (Folio)</button>
+    </div>
+
+    <!-- Notification popup -->
+    <div class="notification" id="notification">
+        Link copied to clipboard!
+    </div>
+</body>
+</html>
