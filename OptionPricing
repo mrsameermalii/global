@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black-Scholes Option Pricing Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2, h3 {
+            color: #333;
+            margin-top: 25px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .result-item {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .formula {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Black-Scholes Option Pricing Calculator</h1>
+        
+        <div class="input-group">
+            <label for="stockPrice">Current Stock Price (S):</label>
+            <input type="number" id="stockPrice" step="0.01" value="100">
+        </div>
+        
+        <div class="input-group">
+            <label for="strikePrice">Strike Price (K):</label>
+            <input type="number" id="strikePrice" step="0.01" value="100">
+        </div>
+        
+        <div class="input-group">
+            <label for="timeToExpiry">Time to Expiry (days):</label>
+            <input type="number" id="timeToExpiry" step="1" value="30">
+        </div>
+        
+        <div class="input-group">
+            <label for="riskFreeRate">Risk-Free Rate (% per annum):</label>
+            <input type="number" id="riskFreeRate" step="0.01" value="5">
+        </div>
+        
+        <div class="input-group">
+            <label for="volatility">Volatility (% per annum):</label>
+            <input type="number" id="volatility" step="0.01" value="20">
+        </div>
+        
+        <button onclick="calculateOptionPrices()">Calculate Option Prices</button>
+        
+        <div id="results" class="results" style="display: none;">
+            <h3>Results:</h3>
+            <div class="result-item" id="callPrice"></div>
+            <div class="result-item" id="putPrice"></div>
+            <div class="result-item" id="d1Value"></div>
+            <div class="result-item" id="d2Value"></div>
+        </div>
+
+        <div class="explanation">
+            <h2>Understanding d1 and d2</h2>
+            
+            <h3>Mathematical Definitions</h3>
+            <div class="formula">
+                <strong>d1 = [ln(S/K) + (r + σ²/2)T] / (σ√T)</strong>
+            </div>
+            <div class="formula">
+                <strong>d2 = d1 - σ√T</strong>
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li>S = Current stock price</li>
+                <li>K = Strike price</li>
+                <li>r = Risk-free rate</li>
+                <li>σ = Volatility</li>
+                <li>T = Time to expiration</li>
+            </ul>
+
+            <h3>What They Represent</h3>
+            <p><strong>d1</strong>: Measures the "moneyness" of the option adjusted for volatility and time decay. It represents how many standard deviations the stock price is above/below the strike price in the risk-neutral world.</p>
+            
+            <p><strong>d2</strong>: Similar to d1 but adjusted downward by the volatility term (σ√T). It represents the probability that the option will finish in-the-money.</p>
+
+            <h3>Practical Interpretation</h3>
+            <ul>
+                <li><strong>N(d1)</strong>: Probability that the option will be exercised (delta of the call option)</li>
+                <li><strong>N(d2)</strong>: Risk-neutral probability that the stock price will exceed the strike price at expiration</li>
+                <li><strong>N(-d2)</strong>: Risk-neutral probability used in put option pricing</li>
+            </ul>
+
+            <h3>Key Insights</h3>
+            <ul>
+                <li>When d1 and d2 are <strong>positive</strong>: Option is likely to finish in-the-money</li>
+                <li>When d1 and d2 are <strong>negative</strong>: Option is likely to finish out-of-the-money</li>
+                <li><strong>Larger absolute values</strong>: Greater confidence in the prediction</li>
+                <li><strong>d1 > d2 always</strong>: The difference equals σ√T (volatility × square root of time)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Standard normal cumulative distribution function
+        function normalCDF(x) {
+            return 0.5 * (1 + erf(x / Math.sqrt(2)));
+        }
+
+        // Error function approximation
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+            return sign * y;
+        }
+
+        function calculateOptionPrices() {
+            // Get input values
+            const S = parseFloat(document.getElementById('stockPrice').value);
+            const K = parseFloat(document.getElementById('strikePrice').value);
+            const T_days = parseFloat(document.getElementById('timeToExpiry').value);
+            const r = parseFloat(document.getElementById('riskFreeRate').value) / 100;
+            const sigma = parseFloat(document.getElementById('volatility').value) / 100;
+
+            // Convert days to years
+            const T = T_days / 365;
+
+            // Calculate d1 and d2
+            const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+            const d2 = d1 - sigma * Math.sqrt(T);
+
+            // Calculate option prices
+            const callPrice = S * normalCDF(d1) - K * Math.exp(-r * T) * normalCDF(d2);
+            const putPrice = K * Math.exp(-r * T) * normalCDF(-d2) - S * normalCDF(-d1);
+
+            // Display results
+            document.getElementById('callPrice').innerHTML = `<strong>Call Option Price: $${callPrice.toFixed(4)}</strong>`;
+            document.getElementById('putPrice').innerHTML = `<strong>Put Option Price: $${putPrice.toFixed(4)}</strong>`;
+            document.getElementById('d1Value').innerHTML = `d1: ${d1.toFixed(6)}`;
+            document.getElementById('d2Value').innerHTML = `d2: ${d2.toFixed(6)}`;
+            
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Calculate on page load with default values
+        window.onload = function() {
+            calculateOptionPrices();
+        };
+    </script>
+</body>
+</html>
