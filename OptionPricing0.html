@@ -102,22 +102,22 @@
             
             <div class="input-group">
                 <label for="strikePrice">Strike Price (K):</label>
-                <input type="number" id="strikePrice" step="0.01" value="105" required>
+                <input type="number" id="strikePrice" step="1" value="105" required>
             </div>
             
             <div class="input-group">
-                <label for="timeToExpiry">Time to Expiry (T) in years:</label>
-                <input type="number" id="timeToExpiry" step="0.01" value="0.25" required>
+                <label for="timeToExpiry">Time to Expiry (T) in days:</label>
+                <input type="number" id="timeToExpiry" step="1" value="1" required>
             </div>
             
             <div class="input-group">
                 <label for="riskFreeRate">Risk-Free Rate (r) as decimal:</label>
-                <input type="number" id="riskFreeRate" step="0.0001" value="0.05" required>
+                <input type="number" id="riskFreeRate" step="0.01" value="0.03" required>
             </div>
             
             <div class="input-group">
                 <label for="volatility">Volatility (σ) as decimal:</label>
-                <input type="number" id="volatility" step="0.0001" value="0.20" required>
+                <input type="number" id="volatility" step="0.01" value="0.15" required>
             </div>
             
             <div class="button-group">
@@ -196,9 +196,12 @@
             // Get input values
             const S = parseFloat(document.getElementById('stockPrice').value);
             const K = parseFloat(document.getElementById('strikePrice').value);
-            const T = parseFloat(document.getElementById('timeToExpiry').value);
+            const T_days = parseFloat(document.getElementById('timeToExpiry').value);
             const r = parseFloat(document.getElementById('riskFreeRate').value);
             const sigma = parseFloat(document.getElementById('volatility').value);
+
+            // Convert days to years
+            const T = T_days / 365;
             
             // Validate inputs
             if (S <= 0 || K <= 0 || T <= 0 || sigma <= 0) {
