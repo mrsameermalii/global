@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelly Criterion Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .formula {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f3f4f6;
+            padding: 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .slider-container {
+            padding: 20px 0;
+        }
+        
+        .slider-value {
+            font-weight: 600;
+            color: #374151;
+            padding: 4px 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        #win-amount-slider::-webkit-slider-thumb {
+            background: #10b981;
+        }
+        
+        #loss-amount-slider::-webkit-slider-thumb {
+            background: #ef4444;
+        }
+        
+        #fraction-slider::-webkit-slider-thumb {
+            background: #3b82f6;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted black;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .result-box {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Kelly Criterion Calculator</h1>
+            <p class="text-gray-600">Optimize your betting strategy with the Kelly criterion and its fractional variants</p>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-md overflow-hidden p-6 mb-8">
+            <div class="md:flex md:items-start mb-6">
+                <div class="md:w-1/2 md:pr-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">What is the Kelly Criterion?</h2>
+                    <p class="text-gray-600 mb-4">
+                        The Kelly criterion is a formula for determining the optimal size of a series of bets to maximize logarithm 
+                        growth, effectively balancing risk vs. reward. It was developed by John Larry Kelly Jr. in 1956.
+                    </p>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <p class="font-medium text-blue-800 mb-2">Standard Kelly Formula:</p>
+                        <p class="formula">f* = (bp - q) / b</p>
+                        <p class="text-sm text-gray-600 mt-2">
+                            <span class="font-medium">Where:</span><br>
+                            f* = fraction of bankroll to wager<br>
+                            b = net odds (win amount / loss amount)<br>
+                            p = probability of winning<br>
+                            q = probability of losing (1 - p)
+                        </p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 mt-6 md:mt-0">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9aea896e-2d38-48fc-9316-ba8200e66154.png" alt="Scientific illustration showing mathematical formulas floating above a financial chart with arrows indicating optimal betting points" class="rounded-lg shadow" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Calculator</h2>
+                    
+                    <div class="mb-4">
+                        <label for="win-prob" class="block text-sm font-medium text-gray-700 mb-1">
+                            Probability of Winning (p) 
+                            <span class="tooltip">
+                                (ℹ️)
+                                <span class="tooltiptext">Your estimated probability of winning this bet (0-100%)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="win-prob" min="1" max="99" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between">
+                            <span>1%</span>
+                            <span id="win-prob-value" class="slider-value">50%</span>
+                            <span>99%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="win-amount" class="block text-sm font-medium text-gray-700 mb-1">
+                            Win Amount (b) 
+                            <span class="tooltip">
+                                (ℹ️)
+                                <span class="tooltiptext">If you win, how much you gain per unit wagered (decimal odds - 1)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="win-amount" min="0.1" max="10" step="0.1" value="1.0" class="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer" id="win-amount-slider">
+                        <div class="flex justify-between">
+                            <span>0.1x</span>
+                            <span id="win-amount-value" class="slider-value">1.0x</span>
+                            <span>10x</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="loss-amount" class="block text-sm font-medium text-gray-700 mb-1">
+                            Loss Amount 
+                            <span class="tooltip">
+                                (ℹ️)
+                                <span class="tooltiptext">If you lose, how much you lose per unit wagered (typically 1 unless you have partial refunds)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="loss-amount" min="0.1" max="10" step="0.1" value="1.0" class="w-full h-2 bg-red-100 rounded-lg appearance-none cursor-pointer" id="loss-amount-slider">
+                        <div class="flex justify-between">
+                            <span>0.1x</span>
+                            <span id="loss-amount-value" class="slider-value">1.0x</span>
+                            <span>10x</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 pt-4 border-t border-gray-200">
+                        <label for="fraction" class="block text-sm font-medium text-gray-700 mb-1">
+                            Kelly Fraction 
+                            <span class="tooltip">
+                                (ℹ️)
+                                <span class="tooltiptext">Fraction of full Kelly to bet (lower = safer growth)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="fraction" min="0" max="1" step="0.05" value="1" class="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between">
+                            <span>0%</span>
+                            <span id="fraction-value" class="slider-value">100%</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Results</h2>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div id="kelly-result" class="result-box bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-medium text-gray-700">Full Kelly Bet</h3>
+                                <span class="text-sm px-2 py-1 rounded bg-blue-100 text-blue-800">Standard</span>
+                            </div>
+                            <div class="text-3xl font-bold text-gray-900" id="kelly-size">0%</div>
+                            <p class="text-sm text-gray-500 mt-1">of your bankroll</p>
+                        </div>
+                        
+                        <div id="fractional-result" class="result-box bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-medium text-gray-700">Fractional Kelly Bet</h3>
+                                <span class="text-sm px-2 py-1 rounded bg-indigo-100 text-indigo-800">Fractional</span>
+                            </div>
+                            <div class="text-3xl font-bold text-gray-900" id="fractional-kelly-size">0%</div>
+                            <p class="text-sm text-gray-500 mt-1">of your bankroll (<span id="current-fraction">100</span>% of Kelly)</p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <div class="flex items-center mb-2">
+                                <h3 class="font-medium text-gray-700">Implied Odds</h3>
+                            </div>
+                            <p class="text-sm text-gray-600">
+                                Break-even probability: <span class="font-mono" id="break-even">0%</span><br>
+                                Expected value: <span class="font-mono" id="expected-value">0%</span> of bet amount<br>
+                                Edge: <span class="font-mono" id="edge">0%</span> of bet amount
+                            </p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <h3 class="font-medium text-gray-700 mb-2">Suggested Fractions</h3>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="fraction-btn text-xs py-1 px-2 rounded border border-yellow-200 bg-white hover:bg-yellow-100" data-fraction="1">Full (1x)</button>
+                                <button class="fraction-btn text-xs py-1 px-2 rounded border border-yellow-200 bg-white hover:bg-yellow-100" data-fraction="0.5">Half (0.5x)</button>
+                                <button class="fraction-btn text-xs py-1 px-2 rounded border border-yellow-200 bg-white hover:bg-yellow-100" data-fraction="0.25">Quarter (0.25x)</button>
+                                <button class="fraction-btn text-xs py-1 px-2 rounded border border-yellow-200 bg-white hover:bg-yellow-100" data-fraction="0.1">Tenth (0.1x)</button>
+                                <button class="fraction-btn text-xs py-1 px-2 rounded border border-yellow-200 bg-white hover:bg-yellow-100" data-fraction="0.05">1/20 (0.05x)</button>
+                                <button class="fraction-btn text-xs py-1 px-2 rounded border border-yellow-200 bg-white hover:bg-yellow-100" data-fraction="0.01">1/100 (0.01x)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mt-8">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">About Fractional Kelly</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-gray-600 mb-4">
+                            While the full Kelly criterion maximizes expected bankroll growth, it can be volatile. 
+                            Many bettors use a fraction of the Kelly bet to reduce variance while still maintaining 
+                            a significant growth advantage.
+                        </p>
+                        <p class="text-gray-600">
+                            Common fractional Kelly strategies:
+                        </p>
+                        <ul class="list-disc pl-5 text-gray-600 mt-2">
+                            <li class="mb-1"><span class="font-medium">1/2 Kelly:</span> Reduces volatility by 50% while keeping 75% of growth rate</li>
+                            <li class="mb-1"><span class="font-medium">1/4 Kelly:</span> More conservative, reduces risk of drawdowns</li>
+                            <li class="mb-1"><span class="font-medium">1/10 Kelly:</span> Very conservative, suitable for when accuracy is uncertain</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/333598d0-0a7d-49ff-95ab-3edb48ab2743.png" alt="Comparative graph showing bankroll growth over time for different Kelly fractions with Full Kelly being most volatile but highest growth" class="rounded-lg shadow" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get all relevant DOM elements
+        const winProbSlider = document.getElementById('win-prob');
+        const winProbValue = document.getElementById('win-prob-value');
+        const winAmountSlider = document.getElementById('win-amount');
+        const winAmountValue = document.getElementById('win-amount-value');
+        const lossAmountSlider = document.getElementById('loss-amount');
+        const lossAmountValue = document.getElementById('loss-amount-value');
+        const fractionSlider = document.getElementById('fraction');
+        const fractionValue = document.getElementById('fraction-value');
+        const currentFractionSpan = document.getElementById('current-fraction');
+        
+        const kellySizeElement = document.getElementById('kelly-size');
+        const fractionalKellySizeElement = document.getElementById('fractional-kelly-size');
+        
+        const breakEvenElement = document.getElementById('break-even');
+        const expectedValueElement = document.getElementById('expected-value');
+        const edgeElement = document.getElementById('edge');
+        
+        const fractionButtons = document.querySelectorAll('.fraction-btn');
+        
+        // Event listeners for sliders
+        winProbSlider.addEventListener('input', updateCalculations);
+        winAmountSlider.addEventListener('input', updateCalculations);
+        lossAmountSlider.addEventListener('input', updateCalculations);
+        fractionSlider.addEventListener('input', updateCalculations);
+        
+        // Event listeners for fraction buttons
+        fractionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const fraction = parseFloat(this.getAttribute('data-fraction'));
+                fractionSlider.value = fraction;
+                updateCalculations();
+            });
+        });
+        
+        // Initialize calculations
+        updateCalculations();
+        
+        function updateCalculations() {
+            // Get current values
+            const winProb = parseInt(winProbSlider.value) / 100;
+            const winAmount = parseFloat(winAmountSlider.value);
+            const lossAmount = parseFloat(lossAmountSlider.value);
+            const fraction = parseFloat(fractionSlider.value);
+            
+            // Update displayed values
+            winProbValue.textContent = `${winProbSlider.value}%`;
+            winAmountValue.textContent = `${winAmount.toFixed(1)}x`;
+            lossAmountValue.textContent = `${lossAmount.toFixed(1)}x`;
+            
+            const fractionPercentage = Math.round(fraction * 100);
+            fractionValue.textContent = `${fractionPercentage}%`;
+            currentFractionSpan.textContent = fractionPercentage;
+            
+            // Calculate Kelly criterion
+            const kellySize = calculateKelly(winProb, winAmount, lossAmount);
+            const fractionalKellySize = kellySize * fraction;
+            
+            // Calculate additional metrics
+            const breakEven = 1 / (winAmount / lossAmount + 1);
+            const expectedValue = (winProb * winAmount) - ((1 - winProb) * lossAmount);
+            const edge = (winAmount * winProb) - (lossAmount * (1 - winProb));
+            
+            // Update UI
+            if (kellySize > 0) {
+                kellySizeElement.textContent = `${(kellySize * 100).toFixed(1)}%`;
+                kellySizeElement.style.color = '#10b981';
+                document.getElementById('kelly-result').style.borderColor = '#10b981';
+            } else {
+                kellySizeElement.textContent = `0%`;
+                kellySizeElement.style.color = '#ef4444';
+                document.getElementById('kelly-result').style.borderColor = '#ef4444';
+            }
+            
+            if (fractionalKellySize > 0) {
+                fractionalKellySizeElement.textContent = `${(fractionalKellySize * 100).toFixed(1)}%`;
+                fractionalKellySizeElement.style.color = '#10b981';
+                document.getElementById('fractional-result').style.borderColor = '#10b981';
+            } else {
+                fractionalKellySizeElement.textContent = `0%`;
+                fractionalKellySizeElement.style.color = '#ef4444';
+                document.getElementById('fractional-result').style.borderColor = '#ef4444';
+            }
+            
+            breakEvenElement.textContent = `${(breakEven * 100).toFixed(1)}%`;
+            expectedValueElement.textContent = `${(expectedValue * 100).toFixed(1)}%`;
+            edgeElement.textContent = `${(edge * 100).toFixed(1)}%`;
+        }
+        
+            function calculateKelly(p, b, a = 1) {
+            // Kelly formula: f* = (bp - q) / b
+            // Where q = 1 - p, b = win amount, a = loss amount (usually 1)
+            // In generalized form: f* = (p/a) - (q/b)
+            
+            if (b <= 0 || p <= 0) return 0;
+            
+            const q = 1 - p;
+            const numerator = (b * p) - q;
+            const kelly = numerator / b;
+            
+            // Handle cases where loss amount isn't 1
+            // Generalized formula: f* = p/a - q/b
+            const generalizedKelly = (p / a) - (q / b);
+            
+            // Return the minimum between kelly and generalized, normalized between 0 and 1
+            return Math.max(0, Math.min(generalizedKelly, 1));
+        }
+    </script>
+</body>
+</html>
