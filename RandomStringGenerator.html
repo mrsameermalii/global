@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Random String Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .range-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .range-thumb::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3b82f6;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Advanced String Generator</h1>
+                <p class="text-gray-600">Generate customized random strings with precision control for your applications</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Generation Settings</h2>
+                            
+                            <!-- Length control -->
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label for="length" class="block text-sm font-medium text-gray-700">String Length: <span id="length-value" class="font-bold">12</span></label>
+                                </div>
+                                <input type="range" id="length" min="4" max="64" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-thumb">
+                            </div>
+                            
+                            <!-- Character type controls -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label class="flex items-center space-x-3">
+                                        <div class="switch">
+                                            <input type="checkbox" id="include-uppercase" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                        <span class="text-gray-700">Uppercase (A-Z)</span>
+                                    </label>
+                                    <div class="mt-2 pl-12">
+                                        <input type="number" id="uppercase-count" min="0" max="12" value="3" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="flex items-center space-x-3">
+                                        <div class="switch">
+                                            <input type="checkbox" id="include-lowercase" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                        <span class="text-gray-700">Lowercase (a-z)</span>
+                                    </label>
+                                    <div class="mt-2 pl-12">
+                                        <input type="number" id="lowercase-count" min="0" max="12" value="5" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="flex items-center space-x-3">
+                                        <div class="switch">
+                                            <input type="checkbox" id="include-digits" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                        <span class="text-gray-700">Digits (0-9)</span>
+                                    </label>
+                                    <div class="mt-2 pl-12">
+                                        <input type="number" id="digits-count" min="0" max="12" value="2" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="flex items-center space-x-3">
+                                        <div class="switch">
+                                            <input type="checkbox" id="include-special">
+                                            <span class="slider"></span>
+                                        </div>
+                                        <span class="text-gray-700">Special Characters</span>
+                                    </label>
+                                    <div class="mt-2 pl-12">
+                                        <input type="number" id="special-count" min="0" max="12" value="2" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced options -->
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-1/2">
+                                        <label for="start-char" class="block text-sm font-medium text-gray-700 mb-1">Start Character</label>
+                                        <select id="start-char" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <option value="uppercase">Uppercase (A-Z)</option>
+                                            <option value="lowercase" selected>Lowercase (a-z)</option>
+                                            <option value="any">Any Alphabet</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-1/2">
+                                        <label for="end-char" class="block text-sm font-medium text-gray-700 mb-1">End Character</label>
+                                        <select id="end-char" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <option value="uppercase">Uppercase (A-Z)</option>
+                                            <option value="lowercase" selected>Lowercase (a-z)</option>
+                                            <option value="any">Any Alphabet</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="separator" class="block text-sm font-medium text-gray-700 mb-1">Separator</label>
+                                    <div class="flex space-x-2">
+                                        <select id="separator-char" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <option value="">None</option>
+                                            <option value="-">Hyphen (-)</option>
+                                            <option value="_">Underscore (_)</option>
+                                            <option value=".">Period (.)</option>
+                                            <option value=",">Comma (,)</option>
+                                        </select>
+                                        <input type="number" id="separator-freq" min="2" max="10" value="4" class="w-20 border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Every N chars">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <div class="bg-gray-50 p-6 rounded-lg h-full">
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-medium text-gray-800 mb-3">Generated String</h3>
+                                    <div class="bg-white p-4 border border-gray-300 rounded-md mb-3">
+                                        <div id="result" class="text-lg font-mono break-all text-gray-800"></div>
+                                    </div>
+                                    <div class="flex space-x-3">
+                                        <button id="copy-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">Copy to Clipboard</button>
+                                        <button id="regenerate-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">Regenerate</button>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-800 mb-3">Character Distribution</h3>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <div class="text-sm text-gray-600 mb-1">Uppercase</div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="uppercase-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 20%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm text-gray-600 mb-1">Lowercase</div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="lowercase-bar" class="bg-green-600 h-2.5 rounded-full" style="width: 40%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm text-gray-600 mb-1">Digits</div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="digits-bar" class="bg-purple-600 h-2.5 rounded-full" style="width: 20%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm text-gray-600 mb-1">Special</div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="special-bar" class="bg-yellow-500 h-2.5 rounded-full" style="width: 20%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="auto-update" checked class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">Auto-update on change</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center text-sm text-gray-500">
+                <p>Use these random strings for secure passwords, API keys, tokens, or any other application that requires unpredictable strings.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Character sets
+        const CHARSET = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            digits: '0123456789',
+            special: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+
+        // DOM elements
+        const lengthInput = document.getElementById('length');
+        const lengthValue = document.getElementById('length-value');
+        const includeUppercase = document.getElementById('include-uppercase');
+        const uppercaseCount = document.getElementById('uppercase-count');
+        const includeLowercase = document.getElementById('include-lowercase');
+        const lowercaseCount = document.getElementById('lowercase-count');
+        const includeDigits = document.getElementById('include-digits');
+        const digitsCount = document.getElementById('digits-count');
+        const includeSpecial = document.getElementById('include-special');
+        const specialCount = document.getElementById('special-count');
+        const startChar = document.getElementById('start-char');
+        const endChar = document.getElementById('end-char');
+        const separatorChar = document.getElementById('separator-char');
+        const separatorFreq = document.getElementById('separator-freq');
+        const resultElement = document.getElementById('result');
+        const copyBtn = document.getElementById('copy-btn');
+        const regenerateBtn = document.getElementById('regenerate-btn');
+        const autoUpdate = document.getElementById('auto-update');
+        const uppercaseBar = document.getElementById('uppercase-bar');
+        const lowercaseBar = document.getElementById('lowercase-bar');
+        const digitsBar = document.getElementById('digits-bar');
+        const specialBar = document.getElementById('special-bar');
+
+        // Initialize
+        updateLengthValue();
+        generateRandomString();
+
+        // Event listeners
+        lengthInput.addEventListener('input', () => {
+            updateLengthValue();
+            updateCharacterCounts();
+            if (autoUpdate.checked) generateRandomString();
+        });
+
+        [includeUppercase, includeLowercase, includeDigits, includeSpecial].forEach(el => {
+            el.addEventListener('change', () => {
+                toggleCountInput(el.id.replace('include-', ''), el.checked);
+                updateCharacterCounts();
+                if (autoUpdate.checked) generateRandomString();
+            });
+        });
+
+        [uppercaseCount, lowercaseCount, digitsCount, specialCount].forEach(el => {
+            el.addEventListener('input', () => {
+                if (autoUpdate.checked) generateRandomString();
+            });
+        });
+
+        [
+            startChar, endChar, separatorChar, separatorFreq, autoUpdate
+        ].forEach(el => {
+            el.addEventListener('change', () => {
+                if (autoUpdate.checked) generateRandomString();
+            });
+        });
+
+        copyBtn.addEventListener('click', copyToClipboard);
+        regenerateBtn.addEventListener('click', generateRandomString);
+
+        // Helper functions
+        function updateLengthValue() {
+            lengthValue.textContent = lengthInput.value;
+        }
+
+        function toggleCountInput(type, enabled) {
+            const countInput = document.getElementById(`${type}-count`);
+            countInput.disabled = !enabled;
+        }
+
+        function updateCharacterCounts() {
+            const length = parseInt(lengthInput.value);
+            [uppercaseCount, lowercaseCount, digitsCount, specialCount].forEach(el => {
+                el.max = length;
+            });
+        }
+
+        function getRandomChar(charset) {
+            return charset[Math.floor(Math.random() * charset.length)];
+        }
+
+        // Main generation function
+        function generateRandomString() {
+            const length = parseInt(lengthInput.value);
+            if (length < 4 || length > 64) return;
+
+            let charset = '';
+            let counts = {
+                uppercase: 0,
+                lowercase: 0,
+                digits: 0,
+                special: 0
+            };
+
+            // Determine total requested characters (may exceed length)
+            let totalRequested = 0;
+            if (includeUppercase.checked) totalRequested += parseInt(uppercaseCount.value);
+            if (includeLowercase.checked) totalRequested += parseInt(lowercaseCount.value);
+            if (includeDigits.checked) totalRequested += parseInt(digitsCount.value);
+            if (includeSpecial.checked) totalRequested += parseInt(specialCount.value);
+
+            // Adjust counts to fit length if necessary
+            if (totalRequested > length) {
+                const total = totalRequested - (includeUppercase.checked ? 1 : 0) 
+                                           - (includeLowercase.checked ? 1 : 0);
+                                           
+                if (includeUppercase.checked) {
+                    counts.uppercase = Math.max(1, Math.floor(parseInt(uppercaseCount.value) * length / total));
+                }
+                if (includeLowercase.checked) {
+                    counts.lowercase = Math.max(1, Math.floor(parseInt(lowercaseCount.value) * length / total));
+                }
+                if (includeDigits.checked) {
+                    counts.digits = Math.floor(parseInt(digitsCount.value) * length / total);
+                }
+                if (includeSpecial.checked) {
+                    counts.special = Math.floor(parseInt(specialCount.value) * length / total);
+                }
+            } else {
+                if (includeUppercase.checked) counts.uppercase = parseInt(uppercaseCount.value);
+                if (includeLowercase.checked) counts.lowercase = parseInt(lowercaseCount.value);
+                if (includeDigits.checked) counts.digits = parseInt(digitsCount.value);
+                if (includeSpecial.checked) counts.special = parseInt(specialCount.value);
+            }
+
+            // Create pooled characters
+            let pool = '';
+            if (counts.uppercase > 0) pool += CHARSET.uppercase.repeat(Math.ceil(counts.uppercase / CHARSET.uppercase.length));
+            if (counts.lowercase > 0) pool += CHARSET.lowercase.repeat(Math.ceil(counts.lowercase / CHARSET.lowercase.length));
+            if (counts.digits > 0) pool += CHARSET.digits.repeat(Math.ceil(counts.digits / CHARSET.digits.length));
+            if (counts.special > 0) pool += CHARSET.special.repeat(Math.ceil(counts.special / CHARSET.special.length));
+            
+            // Shuffle the pool
+            pool = pool.split('').sort(() => 0.5 - Math.random()).join('');
+
+            // Start building the string with the required start and end characters
+            let result = '';
+            
+            // Add start character
+            if (startChar.value === 'uppercase') {
+                result += getRandomChar(CHARSET.uppercase);
+            } else if (startChar.value === 'lowercase') {
+                result += getRandomChar(CHARSET.lowercase);
+            } else {
+                result += getRandomChar(CHARSET.uppercase + CHARSET.lowercase);
+            }
+            
+            // Add the rest of the characters (first is already added)
+            while (result.length < length - 1) {
+                if (pool.length === 0) {
+                    // Fallback if pool is exhausted (shouldn't happen normally)
+                    const available = [];
+                    if (includeUppercase.checked) available.push(...CHARSET.uppercase);
+                    if (includeLowercase.checked) available.push(...CHARSET.lowercase);
+                    if (includeDigits.checked) available.push(...CHARSET.digits);
+                    if (includeSpecial.checked) available.push(...CHARSET.special);
+                    if (available.length > 0) {
+                        result += available[Math.floor(Math.random() * available.length)];
+                    } else {
+                        result += getRandomChar(CHARSET.lowercase);
+                    }
+                } else {
+                    result += pool[0];
+                    pool = pool.slice(1);
+                }
+            }
+            
+            // Add end character
+            if (endChar.value === 'uppercase') {
+                result += getRandomChar(CHARSET.uppercase);
+            } else if (endChar.value === 'lowercase') {
+                result += getRandomChar(CHARSET.lowercase);
+            } else {
+                result += getRandomChar(CHARSET.uppercase + CHARSET.lowercase);
+            }
+            
+            // Apply separator if needed
+            const separator = separatorChar.value;
+            if (separator && separatorFreq.value && separatorFreq.value >= 2) {
+                const freq = parseInt(separatorFreq.value);
+                const parts = [];
+                for (let i = 0; i < result.length; i += freq) {
+                    parts.push(result.substr(i, freq));
+                }
+                result = parts.join(separator);
+            }
+            
+            // Update UI
+            resultElement.textContent = result;
+            updateBarCharts(length, counts);
+        }
+
+        function updateBarCharts(length, counts) {
+            uppercaseBar.style.width = (counts.uppercase / length * 100) + '%';
+            lowercaseBar.style.width = (counts.lowercase / length * 100) + '%';
+            digitsBar.style.width = (counts.digits / length * 100) + '%';
+            specialBar.style.width = (counts.special / length * 100) + '%';
+        }
+
+        function copyToClipboard() {
+            const text = resultElement.textContent;
+            if (!text) return;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy to Clipboard';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+    </script>
+</body>
+</html>
