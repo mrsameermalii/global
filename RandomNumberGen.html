@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Random String Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .toggle-checkbox:checked {
+            right: 0;
+            background-color: #4f46e5;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-indigo-700 mb-2">Advanced String Generator</h1>
+                <p class="text-gray-600">Generate random strings with precise control over composition</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Length Control -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label for="length" class="block text-sm font-medium text-gray-700 mb-2">String Length</label>
+                    <input type="range" id="length" min="4" max="100" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between mt-1">
+                        <span class="text-xs text-gray-500">4</span>
+                        <span id="lengthValue" class="text-sm font-medium text-indigo-600">12</span>
+                        <span class="text-xs text-gray-500">100</span>
+                    </div>
+                </div>
+
+                <!-- Character Type Controls -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Character Types</label>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Uppercase Letters</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="uppercaseToggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="uppercaseToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Lowercase Letters</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="lowercaseToggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="lowercaseToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Digits</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="digitsToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="digitsToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Special Characters</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="specialToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="specialToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Character Count Controls -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Character Counts</label>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="upperCount" class="block text-xs text-gray-500 mb-1">Uppercase Count</label>
+                            <input type="range" id="upperCount" min="0" max="10" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">0</span>
+                                <span id="upperCountValue" class="text-xs font-medium text-indigo-600">2</span>
+                                <span class="text-xs text-gray-500">10</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="lowerCount" class="block text-xs text-gray-500 mb-1">Lowercase Count</label>
+                            <input type="range" id="lowerCount" min="0" max="10" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">0</span>
+                                <span id="lowerCountValue" class="text-xs font-medium text-indigo-600">2</span>
+                                <span class="text-xs text-gray-500">10</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="digitCount" class="block text-xs text-gray-500 mb-1">Digit Count</label>
+                            <input type="range" id="digitCount" min="0" max="10" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">0</span>
+                                <span id="digitCountValue" class="text-xs font-medium text-indigo-600">2</span>
+                                <span class="text-xs text-gray-500">10</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="specialCount" class="block text-xs text-gray-500 mb-1">Special Char Count</label>
+                            <input type="range" id="specialCount" min="0" max="10" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">0</span>
+                                <span id="specialCountValue" class="text-xs font-medium text-indigo-600">2</span>
+                                <span class="text-xs text-gray-500">10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formatting Options -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Formatting Options</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Start with letter</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="startLetterToggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="startLetterToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">End with letter</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="endLetterToggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="endLetterToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="separator" class="block text-sm text-gray-600 mb-1">Separator</label>
+                            <select id="separator" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                                <option value="">None</option>
+                                <option value="-">Hyphen (-)</option>
+                                <option value="_">Underscore (_)</option>
+                                <option value=".">Dot (.)</option>
+                                <option value=" ">Space ( )</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="separatorFrequency" class="block text-sm text-gray-600 mb-1">Separator Frequency</label>
+                            <select id="separatorFrequency" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                                <option value="0">None</option>
+                                <option value="2">Every 2 chars</option>
+                                <option value="3">Every 3 chars</option>
+                                <option value="4">Every 4 chars</option>
+                                <option value="5">Every 5 chars</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="text-center mb-8">
+                <button id="generateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200 transform hover:scale-105">
+                    Generate Random String
+                </button>
+            </div>
+
+            <!-- Result Display -->
+            <div class="bg-indigo-50 rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-lg font-semibold text-indigo-800">Generated String</h2>
+                    <button id="copyBtn" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy
+                    </button>
+                </div>
+                <div id="result" class="bg-white p-4 rounded-md border border-indigo-200 text-center text-lg font-mono break-all"></div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                    <div class="text-sm text-gray-500">Total Length</div>
+                    <div id="totalLength" class="text-xl font-bold text-indigo-600">0</div>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                    <div class="text-sm text-gray-500">Uppercase</div>
+                    <div id="uppercaseCount" class="text-xl font-bold text-indigo-600">0</div>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                    <div class="text-sm text-gray-500">Lowercase</div>
+                    <div id="lowercaseCount" class="text-xl font-bold text-indigo-600">0</div>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                    <div class="text-sm text-gray-500">Digits/Special</div>
+                    <div id="otherCount" class="text-xl font-bold text-indigo-600">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const lengthSlider = document.getElementById('length');
+            const lengthValue = document.getElementById('lengthValue');
+            const upperCountSlider = document.getElementById('upperCount');
+            const upperCountValue = document.getElementById('upperCountValue');
+            const lowerCountSlider = document.getElementById('lowerCount');
+            const lowerCountValue = document.getElementById('lowerCountValue');
+            const digitCountSlider = document.getElementById('digitCount');
+            const digitCountValue = document.getElementById('digitCountValue');
+            const specialCountSlider = document.getElementById('specialCount');
+            const specialCountValue = document.getElementById('specialCountValue');
+            const uppercaseToggle = document.getElementById('uppercaseToggle');
+            const lowercaseToggle = document.getElementById('lowercaseToggle');
+            const digitsToggle = document.getElementById('digitsToggle');
+            const specialToggle = document.getElementById('specialToggle');
+            const startLetterToggle = document.getElementById('startLetterToggle');
+            const endLetterToggle = document.getElementById('endLetterToggle');
+            const separator = document.getElementById('separator');
+            const separatorFrequency = document.getElementById('separatorFrequency');
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const result = document.getElementById('result');
+            const totalLength = document.getElementById('totalLength');
+            const uppercaseCount = document.getElementById('uppercaseCount');
+            const lowercaseCount = document.getElementById('lowercaseCount');
+            const otherCount = document.getElementById('otherCount');
+
+            // Character sets
+            const uppercaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercaseLetters = 'abcdefghijklmnopqrstuvwxyz';
+            const digits = '0123456789';
+            const specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            // Update slider value displays
+            lengthSlider.addEventListener('input', () => {
+                lengthValue.textContent = lengthSlider.value;
+            });
+
+            upperCountSlider.addEventListener('input', () => {
+                upperCountValue.textContent = upperCountSlider.value;
+            });
+
+            lowerCountSlider.addEventListener('input', () => {
+                lowerCountValue.textContent = lowerCountSlider.value;
+            });
+
+            digitCountSlider.addEventListener('input', () => {
+                digitCountValue.textContent = digitCountSlider.value;
+            });
+
+            specialCountSlider.addEventListener('input', () => {
+                specialCountValue.textContent = specialCountSlider.value;
+            });
+
+            // Generate random string
+            generateBtn.addEventListener('click', () => {
+                const length = parseInt(lengthSlider.value);
+                const upperCount = parseInt(upperCountSlider.value);
+                const lowerCount = parseInt(lowerCountSlider.value);
+                const digitCount = parseInt(digitCountSlider.value);
+                const specialCount = parseInt(specialCountSlider.value);
+                const useUppercase = uppercaseToggle.checked;
+                const useLowercase = lowercaseToggle.checked;
+                const useDigits = digitsToggle.checked;
+                const useSpecial = specialToggle.checked;
+                const startWithLetter = startLetterToggle.checked;
+                const endWithLetter = endLetterToggle.checked;
+                const sep = separator.value;
+                const sepFreq = parseInt(separatorFrequency.value);
+
+                // Validate inputs
+                if (!useUppercase && !useLowercase && !useDigits && !useSpecial) {
+                    alert('Please select at least one character type');
+                    return;
+                }
+
+                if (startWithLetter && !useUppercase && !useLowercase) {
+                    alert('Cannot start with letter if no letters are enabled');
+                    return;
+                }
+
+                if (endWithLetter && !useUppercase && !useLowercase) {
+                    alert('Cannot end with letter if no letters are enabled');
+                    return;
+                }
+
+                // Calculate remaining characters after required counts
+                const requiredCount = upperCount + lowerCount + digitCount + specialCount;
+                let remainingChars = length - requiredCount;
+                
+                if (remainingChars < 0) {
+                    alert(`Total required characters (${requiredCount}) exceeds string length (${length})`);
+                    return;
+                }
+
+                // Generate string
+                let chars = [];
+                
+                // Add required uppercase letters
+                for (let i = 0; i < upperCount; i++) {
+                    chars.push(getRandomChar(uppercaseLetters));
+                }
+                
+                // Add required lowercase letters
+                for (let i = 0; i < lowerCount; i++) {
+                    chars.push(getRandomChar(lowercaseLetters));
+                }
+                
+                // Add required digits
+                for (let i = 0; i < digitCount; i++) {
+                    chars.push(getRandomChar(digits));
+                }
+                
+                // Add required special characters
+                for (let i = 0; i < specialCount; i++) {
+                    chars.push(getRandomChar(specialChars));
+                }
+                
+                // Add remaining random characters
+                for (let i = 0; i < remainingChars; i++) {
+                    let charSet = '';
+                    if (useUppercase) charSet += uppercaseLetters;
+                    if (useLowercase) charSet += lowercaseLetters;
+                    if (useDigits) charSet += digits;
+                    if (useSpecial) charSet += specialChars;
+                    
+                    chars.push(getRandomChar(charSet));
+                }
+                
+                // Shuffle the array
+                chars = shuffleArray(chars);
+                
+                // Ensure first and last characters are letters if required
+                if (startWithLetter) {
+                    let firstLetter = '';
+                    if (useUppercase && useLowercase) {
+                        firstLetter = Math.random() < 0.5 ? 
+                            getRandomChar(uppercaseLetters) : 
+                            getRandomChar(lowercaseLetters);
+                    } else if (useUppercase) {
+                        firstLetter = getRandomChar(uppercaseLetters);
+                    } else {
+                        firstLetter = getRandomChar(lowercaseLetters);
+                    }
+                    
+                    // Find first non-letter and replace it
+                    for (let i = 0; i < chars.length; i++) {
+                        if (!uppercaseLetters.includes(chars[i]) && !lowercaseLetters.includes(chars[i])) {
+                            chars[i] = firstLetter;
+                            break;
+                        }
+                    }
+                }
+                
+                if (endWithLetter) {
+                    let lastLetter = '';
+                    if (useUppercase && useLowercase) {
+                        lastLetter = Math.random() < 0.5 ? 
+                            getRandomChar(uppercaseLetters) : 
+                            getRandomChar(lowercaseLetters);
+                    } else if (useUppercase) {
+                        lastLetter = getRandomChar(uppercaseLetters);
+                    } else {
+                        lastLetter = getRandomChar(lowercaseLetters);
+                    }
+                    
+                    // Find last non-letter and replace it
+                    for (let i = chars.length - 1; i >= 0; i--) {
+                        if (!uppercaseLetters.includes(chars[i]) && !lowercaseLetters.includes(chars[i])) {
+                            chars[i] = lastLetter;
+                            break;
+                        }
+                    }
+                }
+                
+                // Join characters
+                let resultStr = chars.join('');
+                
+                // Apply separator if needed
+                if (sep && sepFreq > 0) {
+                    let separatedStr = '';
+                    for (let i = 0; i < resultStr.length; i++) {
+                        if (i > 0 && i % sepFreq === 0) {
+                            separatedStr += sep;
+                        }
+                        separatedStr += resultStr[i];
+                    }
+                    resultStr = separatedStr;
+                }
+                
+                // Display result
+                result.textContent = resultStr;
+                
+                // Update statistics
+                updateStatistics(resultStr);
+            });
+
+            // Copy to clipboard
+            copyBtn.addEventListener('click', () => {
+                if (!result.textContent) {
+                    alert('Nothing to copy! Generate a string first.');
+                    return;
+                }
+                
+                navigator.clipboard.writeText(result.textContent)
+                    .then(() => {
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyBtn.textContent = 'Copy';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy text to clipboard');
+                    });
+            });
+
+            // Helper functions
+            function getRandomChar(charSet) {
+                return charSet[Math.floor(Math.random() * charSet.length)];
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function updateStatistics(str) {
+                totalLength.textContent = str.length;
+                
+                let upper = 0;
+                let lower = 0;
+                let other = 0;
+                
+                for (const char of str) {
+                    if (uppercaseLetters.includes(char)) {
+                        upper++;
+                    } else if (lowercaseLetters.includes(char)) {
+                        lower++;
+                    } else {
+                        other++;
+                    }
+                }
+                
+                uppercaseCount.textContent = upper;
+                lowercaseCount.textContent = lower;
+                otherCount.textContent = other;
+            }
+
+            // Generate initial string
+            generateBtn.click();
+        });
+    </script>
+</body>
+</html>
